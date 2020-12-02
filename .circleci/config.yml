@@ -1,9 +1,9 @@
 version: 2
 jobs:
-  - build:
-      docker:
-        - image: 'circleci/node:latest'
-  - steps:
+  build:
+    docker:
+      - image: 'circleci/node:latest'
+    steps:
       - checkout
       - restore_cache:
           keys:
@@ -54,3 +54,8 @@ jobs:
           path: ~/tests
       - store_test_results:
           path: ~/tests
+workflows:
+  version: 2
+  validate:
+    jobs:
+      - build
