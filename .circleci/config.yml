@@ -50,7 +50,7 @@ jobs:
           command: |
               node_modules/sfdx-cli/bin/run force:org:delete -u scratch -p
               rm ~/tests/apex/*.txt ~/tests/apex/test-result-7*.json
-      - store_artifact:
+      - store_artifacts:
           path: ~/tests
       - store_test_results:
           path: ~/tests
