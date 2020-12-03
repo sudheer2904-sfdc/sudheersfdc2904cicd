@@ -29,7 +29,7 @@ jobs:
             mkdir keys
             echo $SFDC_SERVER_KEY | base64 -d > keys/server.key
             node_modules/sfdx-cli/bin/run force:auth:jwt:grant --clientid $CONSUMERKEY --jwtkeyfile keys/server.key --username $USERNAME --setdefaultdevhubusername -a DevHub
-            node_modules/sfdx-cli/bin/run force:org:create -v DevHub -s -f config/project-scratch-def.json -a scratch
+            node_modules/sfdx-cli/bin/run force:org:create -v DevHub -s -f config/project-scratch-def.json -a ${CIRCLE_BRANCH}
       - run:
           name: Remove Server Key
           when: always
@@ -38,23 +38,28 @@ jobs:
       - run:
           name: Push source to scratch org
           command: |
-            node_modules/sfdx-cli/bin/run force:source:push -u scratch
+            node_modules/sfdx-cli/bin/run force:source:push -u ${CIRCLE_BRANCH}
+  apextest:
+    docker:
+      - image: "circleci/node:latest"
+    steps:
       - run:
           name: Run Apex Tests
           command: |
             mkdir ~/tests
             mkdir ~/tests/apex
-            node_modules/sfdx-cli/bin/run force:apex:test:run -u scratch -c -r human -d ~/tests/apex -w 9999
+            node_modules/sfdx-cli/bin/run force:apex:test:run -u ${CIRCLE_BRANCH} -c -r human -d ~/tests/apex -w 9999
       - run:
           name: Delete scratch org
           when: always
           command: |
-            node_modules/sfdx-cli/bin/run force:org:delete -u scratch -p
+            node_modules/sfdx-cli/bin/run force:org:delete -u ${CIRCLE_BRANCH} -p
             rm ~/tests/apex/*.txt ~/tests/apex/test-result-7*.json
       - store_artifacts:
           path: ~/tests
       - store_test_results:
           path: ~/tests
+
 workflows:
   version: 2
   validate:
