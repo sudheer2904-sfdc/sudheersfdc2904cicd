@@ -34,7 +34,7 @@ jobs:
           name: Remove Server Key
           when: always
           command: |
-            rm assets/server.key
+            rm keys/server.key
       - run:
           name: Push source to scratch org
           command: |
