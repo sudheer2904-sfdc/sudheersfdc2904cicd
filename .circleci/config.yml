@@ -44,16 +44,23 @@ jobs:
       - image: "circleci/node:latest"
     steps:
       - run:
+          name: Install sfdx
+          command: sudo npm install -global sfdx-cli@7.81.0
+      - run:
           name: Run Apex Tests
           command: |
-            mkdir ~/tests
-            mkdir ~/tests/apex
-            node_modules/sfdx-cli/bin/run force:apex:test:run -u ${CIRCLE_BRANCH} -c -r human -d ~/tests/apex -w 9999
+            export SFDX_IMPROVED_CODE_COVERAGE='true'
+            sfdx force:apex:test:run --testlevel RunLocalTests --targetusername ${CIRCLE_BRANCH} --codecoverage --resultformat human --outputdir ~sfdx/tests/apex --wait 30
+      - run:
+          name: Show the Directories created
+          command: |
+            sudo npm install -global tree
+            tree -d
       - run:
           name: Delete scratch org
           when: always
           command: |
-            node_modules/sfdx-cli/bin/run force:org:delete -u ${CIRCLE_BRANCH} -p
+            sfdx force:org:delete --targetusername ${CIRCLE_BRANCH} --noprompt
             rm ~/tests/apex/*.txt ~/tests/apex/test-result-7*.json
       - store_artifacts:
           path: ~/tests
